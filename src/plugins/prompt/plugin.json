@@ -1,0 +1,5 @@
+{
+  "name": "prompt",
+  "description": "System prompt template with variables and instructions",
+  "tags": ["prompt", "system", "ai", "llm"]
+}

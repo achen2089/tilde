@@ -1,0 +1,5 @@
+{
+  "name": "agent",
+  "description": "CLAUDE.md / AGENTS.md scaffold for AI coding agents",
+  "tags": ["agent", "claude", "codex", "cursor", "config"]
+}
