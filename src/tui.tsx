@@ -7,6 +7,12 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 
+const BANNER = `
+  ╭─────────────────────────────╮
+  │         ~ tilde ~           │
+  │   markdown workbench  v0.1  │
+  ╰─────────────────────────────╯`;
+
 function TemplatePicker() {
   const { exit } = useApp();
   const plugins = useMemo(() => loadAllPlugins(), []);
@@ -42,7 +48,6 @@ function TemplatePicker() {
 
     if (mode === "preview") {
       if (key.return) {
-        // Open in editor or output to stdout
         openInEditor(current);
         setMode("done");
         exit();
@@ -88,12 +93,12 @@ function TemplatePicker() {
         </Box>
         <Box
           flexDirection="column"
-          borderStyle="single"
-          borderColor="gray"
+          borderStyle="round"
+          borderColor="cyan"
           paddingX={1}
         >
           {previewLines.map((line, i) => (
-            <Text key={i} dimColor>
+            <Text key={i} color={line.startsWith("#") ? "yellow" : line.startsWith("-") ? "white" : "gray"}>
               {line}
             </Text>
           ))}
@@ -110,18 +115,21 @@ function TemplatePicker() {
 
   return (
     <Box flexDirection="column">
-      <Box marginBottom={1}>
-        <Text bold color="cyan">
-          ~ tilde
+      <Box>
+        <Text color="cyan">{BANNER}</Text>
+      </Box>
+
+      <Box marginTop={1} marginBottom={1}>
+        <Text bold color="white">
+          Pick a template:
         </Text>
-        <Text dimColor> — pick a template</Text>
       </Box>
 
       {search && (
         <Box marginBottom={1}>
           <Text>
-            Search: <Text color="yellow">{search}</Text>
-            <Text dimColor>_</Text>
+            🔍 <Text color="yellow">{search}</Text>
+            <Text dimColor>▌</Text>
           </Text>
         </Box>
       )}
@@ -132,15 +140,16 @@ function TemplatePicker() {
         ) : (
           filtered.map((plugin, i) => {
             const isSelected = i === selectedIndex;
+            const indicator = isSelected ? "▸" : " ";
             return (
               <Box key={plugin.meta.name}>
-                <Text color={isSelected ? "cyan" : undefined}>
-                  {isSelected ? "❯ " : "  "}
+                <Text color={isSelected ? "cyan" : "gray"}>
+                  {indicator}{" "}
                 </Text>
-                <Text bold={isSelected} color={isSelected ? "white" : "gray"}>
-                  {plugin.meta.name}
+                <Text bold={isSelected} color={isSelected ? "cyan" : "white"}>
+                  {plugin.meta.name.padEnd(12)}
                 </Text>
-                <Text dimColor> — {plugin.meta.description}</Text>
+                <Text dimColor> {plugin.meta.description}</Text>
               </Box>
             );
           })
@@ -152,16 +161,14 @@ function TemplatePicker() {
           <Box>
             <Text dimColor>Tags: </Text>
             <Text color="magenta">{current.meta.tags.join(", ")}</Text>
-          </Box>
-          <Box>
-            <Text dimColor>Tokens: </Text>
+            <Text dimColor>  │  Tokens: </Text>
             <Text color="yellow">{formatTokenCount(tokenCount)}</Text>
           </Box>
         </Box>
       )}
 
-      <Box marginTop={1}>
-        <Text dimColor>↑↓: navigate │ Type: search │ Enter: preview │ Esc: quit</Text>
+      <Box marginTop={1} borderStyle="single" borderColor="gray" paddingX={1}>
+        <Text dimColor>↑↓ navigate │ type to search │ enter to preview │ esc to quit</Text>
       </Box>
     </Box>
   );
@@ -176,14 +183,12 @@ function openInEditor(plugin: Plugin): void {
 
   try {
     execSync(`${editor} "${tmpFile}"`, { stdio: "inherit" });
-    // After editor closes, print the file content
     if (fs.existsSync(tmpFile)) {
       const edited = fs.readFileSync(tmpFile, "utf-8");
       process.stdout.write(edited);
       fs.unlinkSync(tmpFile);
     }
   } catch {
-    // If editor fails, just output the template to stdout
     process.stdout.write(content);
   }
 }

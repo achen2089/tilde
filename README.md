@@ -1,141 +1,176 @@
 # ~ tilde
 
-**Write markdown at the speed of thought.**
-
-A fast, fun, plugin-powered markdown workbench for the AI age. Built for people who write SKILL.md, CLAUDE.md, AGENTS.md, prompts, configs, and all the structured text that AI tools run on.
-
-Tilde makes it fast. Tilde makes it fun. Tilde gets out of your way.
-
----
-
-## Why
-
-Markdown is the lingua franca of AI agents. Skills, rules, prompts, memory files, mermaid diagrams, YAML configs — it's all markdown now.
-
-But writing it still sucks. You forget the frontmatter fields. You mess up the mermaid syntax. You copy-paste from old files. You spend 3 minutes formatting what should take 30 seconds.
-
-Tilde fixes that.
-
-## How It Works
+A fast, plugin-powered CLI markdown workbench. Scaffold templates, format files, count tokens, convert between agent config formats, and polish docs with AI — all from the terminal.
 
 ```
-~ tilde
+npm install -g tilde-md
 ```
 
-That's it. You're in.
+## Commands
 
-A fast TUI that feels like a tool, not an IDE. Everything is a plugin. The core is tiny — a shell, a plugin loader, an AI engine, and a renderer. Plugins bring the power.
+### `tilde` — Interactive TUI
 
-### Core Loop
+Launch the template picker. Browse, search, preview, and open templates in your editor.
 
-1. **Pick a primitive** — skill scaffold, mermaid diagram, YAML config, table, whatever
-2. **Fill it in** — templates, AI assist, or just type
-3. **See it live** — real-time preview, token count, structure validation
-4. **Ship it** — export, copy, save, done
+```
+$ tilde
+  ╭─────────────────────────────╮
+  │         ~ tilde ~           │
+  │   markdown workbench  v0.1  │
+  ╰─────────────────────────────╯
+  Pick a template:
+  ▸ agent        CLAUDE.md / AGENTS.md scaffold
+    memory       Dated memory entry
+    mermaid      Mermaid diagram scaffold
+    ...
+```
 
-### What You Can Do
+### `tilde new <template>` — Scaffold
+
+Generate a new file from a built-in or custom template.
 
 ```bash
-# Launch the TUI
-tilde
-
-# Quick scaffold from the command line
-tilde new skill
-tilde new agent
-tilde new mermaid
-
-# Format an existing file
-tilde fmt CLAUDE.md
-
-# Convert between formats
-tilde export SKILL.md --to cursor-rule
-
-# AI rewrite
-tilde polish README.md
+tilde new skill -o SKILL.md        # Create a SKILL.md
+tilde new readme -o README.md      # Create a README
+tilde new mermaid                   # Output to stdout
 ```
 
-## Primitives
-
-Tilde ships with built-in support for the building blocks of AI-era markdown:
-
-| Primitive | What It Does |
-|-----------|-------------|
-| **Frontmatter** | YAML metadata — auto-complete fields, validate structure |
-| **Mermaid** | Diagrams from descriptions — type what you mean, see the diagram |
-| **Tables** | Fast table editing — no more counting pipes |
-| **Code blocks** | Language detection, syntax hints |
-| **Skill scaffold** | SKILL.md with all the right sections |
-| **Agent config** | CLAUDE.md / AGENTS.md / Codex templates |
-| **Rules** | Cursor rules, Claude rules, any format |
-| **Memory entries** | Dated, structured, ready to file |
-| **Prompts** | System prompts, user prompts, templates with variables |
-
-## Plugins
-
-Everything is a plugin. The built-in primitives are plugins. You can add your own.
-
-```
-~/.tilde/plugins/
-  mermaid/
-  skill-scaffold/
-  my-custom-template/
-    plugin.md
-```
-
-A plugin is just a directory with a `plugin.md` that describes what it does, its template, and optionally an AI prompt for generation. Same philosophy as skills — markdown all the way down.
-
-### Community Plugins
-
-Anyone can write and share plugins. A plugin for your company's RFC format. A plugin for blog post scaffolds. A plugin for Terraform docs. If it's structured text, it's a tilde plugin.
-
-## AI Built In
-
-Tilde has AI woven through it, not bolted on.
-
-- **Generate** — describe what you want, get a first draft
-- **Polish** — highlight a section, tighten it up
-- **Expand** — turn a bullet list into full prose
-- **Convert** — SKILL.md → Cursor rule → Codex config
-- **Explain** — "what does this mermaid diagram do?"
-
-Works with whatever model you have configured. Claude, GPT, local — tilde doesn't care.
-
-## Agent Aware
-
-Tilde knows about the agents you use. It detects Claude Code, Codex, Cursor, OpenClaw, OpenCode, and adapts:
-
-- Scaffolds use the right format for your agent
-- Export converts between agent formats
-- Token counter reflects your agent's context window
-- Validation checks agent-specific requirements
-
-## Design Principles
-
-1. **Speed over features** — if it's slower than raw typing, it's a bug
-2. **Fun over formal** — writing should feel good, not like filling out a form
-3. **Plugins over bloat** — the core stays tiny, plugins bring the power
-4. **Terminal native** — no browser, no Electron, no waiting
-5. **Markdown in, markdown out** — tilde doesn't own your files
-
-## Install
+### `tilde list` — List Templates
 
 ```bash
-npm install -g tilde
+$ tilde list
+~ tilde templates
 
-# or use directly
-npx tilde
+  agent        CLAUDE.md / AGENTS.md scaffold for AI coding agents
+               #agent #claude #codex #cursor #config
+
+  skill        SKILL.md scaffold — OpenClaw/Claude Code format
+               #skill #openclaw #claude #agent
+  ...
 ```
 
-## Stack
+### `tilde fmt <file>` — Format
 
-- **Go + Bubble Tea** — fast TUI, single binary
-- **Tree-sitter** — markdown parsing and syntax awareness
-- **Plugin system** — markdown-defined, zero config
+Clean up markdown files: normalize headers, trim whitespace, sort frontmatter, reduce blank lines.
 
-## Status
+```bash
+$ tilde fmt messy-doc.md
+✓ messy-doc.md — formatted:
+  • Sorted frontmatter keys
+  • Trimmed trailing whitespace (3 lines)
+  • Normalized header spacing
+  • Reduced excessive blank lines
+```
 
-Early. Building in public. Contributions welcome.
+### `tilde tokens <file>` — Token Count
 
----
+Count tokens (GPT tokenizer), lines, and characters.
 
-*~ Write it fast. Ship it faster.*
+```bash
+$ tilde tokens CLAUDE.md
+CLAUDE.md:
+  Tokens  1,072 (1.1k)
+  Lines   142
+  Chars   4,258
+```
+
+### `tilde export <file> --to <format>` — Format Conversion
+
+Convert between agent config formats.
+
+```bash
+tilde export SKILL.md --to cursor-rule          # → .cursorrules format
+tilde export .cursorrules --to claude-md         # → CLAUDE.md format
+tilde export CLAUDE.md --to codex -o AGENTS.md   # → Codex format, write to file
+```
+
+**Supported formats:**
+| Format | Description |
+|---|---|
+| `skill` | SKILL.md (OpenClaw) |
+| `cursor-rule` | .cursorrules (Cursor) |
+| `claude-md` | CLAUDE.md (Claude Code) |
+| `codex` | AGENTS.md (Codex) |
+
+### `tilde polish <file>` — AI Polish
+
+Send a markdown file to an LLM to tighten prose, improve structure, and fix formatting.
+
+```bash
+tilde polish draft.md                    # Output to stdout
+tilde polish draft.md --replace          # Overwrite in-place
+tilde polish draft.md -o polished.md     # Write to new file
+```
+
+Requires `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` environment variable.
+
+### `tilde generate <description>` — AI Generate
+
+Describe what you want and get a markdown file.
+
+```bash
+tilde generate "API reference for a REST auth service"
+tilde generate "onboarding guide for new engineers" -o onboarding.md
+```
+
+### `tilde init` — Project Setup
+
+Create agent config files for your project. Detects existing configs and creates what's missing.
+
+```bash
+$ tilde init
+~ tilde init
+
+Detected existing configs:
+  ✓ Claude Code
+
+Creating agent configs...
+
+⏭  CLAUDE.md already exists — skipped
+✓ Created .cursorrules (Rules for Cursor AI editor)
+✓ Created AGENTS.md (Instructions for OpenAI Codex)
+✓ Created SKILL.md (Skill definition for OpenClaw agents)
+```
+
+## Templates
+
+Built-in templates:
+
+| Template | Description |
+|---|---|
+| `agent` | CLAUDE.md / AGENTS.md scaffold for AI coding agents |
+| `memory` | Dated memory entry for agent logs |
+| `mermaid` | Mermaid diagram scaffold |
+| `prompt` | System prompt template |
+| `readme` | README.md scaffold |
+| `rules` | .cursorrules / coding rules scaffold |
+| `skill` | SKILL.md scaffold for OpenClaw |
+
+### Custom Templates
+
+Drop templates in `~/.tilde/plugins/<name>/` with:
+- `plugin.json` — metadata (name, description, tags)
+- `template.md` — the template content
+
+## Configuration
+
+| Environment Variable | Description |
+|---|---|
+| `OPENAI_API_KEY` | OpenAI API key (for `polish` and `generate`) |
+| `ANTHROPIC_API_KEY` | Anthropic API key (alternative to OpenAI) |
+| `TILDE_MODEL` | Override the default model |
+| `EDITOR` | Editor for TUI template editing |
+
+## Development
+
+```bash
+git clone https://github.com/achen2089/tilde.git
+cd tilde
+npm install
+npm run dev -- list          # Run in dev mode
+npm run build                # Build to dist/
+```
+
+## License
+
+MIT
